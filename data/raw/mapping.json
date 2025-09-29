@@ -1,0 +1,12 @@
+{
+  "sheetName": 0,
+  "headerStartsAt": "A1",
+  "columns": {
+    "sku": "Product Number",
+    "brand": "Brand",
+    "partType": "Part Type",
+    "price": "Price",
+    "domestic": "D/ND"
+  },
+  "priceCurrency": "USD"
+}
