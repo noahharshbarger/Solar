@@ -8,4 +8,4 @@
 
 ## Run (to be filled as we scaffold)
 1) Node 20+, Git, VS Code
-2) MySQL via Docker or PlanetScale/Railway
+2) MySQL via Docker
