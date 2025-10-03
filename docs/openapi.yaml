@@ -1,0 +1,149 @@
+openapi: 3.1.0
+info:
+title: Aurora Comparator (MVP)
+version: 0.1.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /search:
+    get:
+      summary: Search parts in local DB
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /aurora/projects:
+    get:
+      summary: List projects from Aurora
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 250, default: 50 }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /aurora/projects/{projectId}/designs:
+    get:
+      summary: List designs for a project
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 250, default: 50 }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /aurora/modules:
+    get:
+      summary: List modules (limit + optional cursor)
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+        - in: query
+          name: cursor
+          schema: { type: string, nullable: true }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /aurora/inverters:
+    get:
+      summary: List inverters (limit + optional cursor)
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+        - in: query
+          name: cursor
+          schema: { type: string, nullable: true }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /aurora/dc-optimizers:
+    get:
+      summary: List DC optimizers (limit + optional cursor)
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+        - in: query
+          name: cursor
+          schema: { type: string, nullable: true }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /compare/{designId}:
+    get:
+      summary: Compare Aurora design components with local parts DB
+      parameters:
+        - in: path
+          name: designId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+  /compare/projects:
+    get:
+      summary: Paginated compare summaries across projects
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: designs_per_project
+          schema: { type: integer, minimum: 1, maximum: 5, default: 1 }
+      responses:
+        '200': { description: OK }
+        '4XX': { $ref: '#/components/responses/Problem' }
+        '5XX': { $ref: '#/components/responses/Problem' }
+
+components:
+  responses:
+    Problem:
+      description: Problem Details error (RFC 9457/7807)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              type: { type: string }
+              title: { type: string }
+              status: { type: integer }
+              detail: { type: string }
+              instance: { type: string }
