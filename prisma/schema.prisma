@@ -16,3 +16,12 @@ model Part {
   originCountry String   @default("UNKNOWN")
   isDomestic    Boolean  @default(false)
 }
+
+model ComponentMap {
+  id           Int     @id @default(autoincrement())
+  auroraName   String
+  manufacturer String?
+  partSku      String
+
+  @@unique([auroraName, manufacturer])
+}
