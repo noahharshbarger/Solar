@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap')
+layer(base);
+
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-*: initial;
+  --font-heading: 'Lexend', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 540px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1140px;
+  --breakpoint-2xl: 1320px;
+  --breakpoint-xs: 500px;
+
+  --color-current: currentColor;
+  --color-transparent: transparent;
+  --color-white: #ffffff;
+  --color-primary: #4a6cf7;
+  --color-dark-text: #79808a;
+  --color-dark: #111722;
+  --color-stroke: #e5e7eb;
+
+  --background-image-noise-pattern: url('/images/NoisePattern.svg');
+
+  --drop-shadow-light: drop-shadow(0px 1px 5px rgba(0, 0, 0, 0.1));
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility header {
+  @apply py-5;
+}
+
+@utility sticky-navbar {
+  @apply fixed! z-999 bg-white/80! py-2! transition! dark:bg-dark!;
+  backdrop-filter: blur(5px);
+  box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+
+  & .navbar > li > a {
+    @apply lg:py-5;
+  }
+
+  & .navbar > li > button {
+    @apply lg:py-5;
+  }
+}
+
+@utility navbar {
+  & > li > a {
+    @apply lg:py-7;
+  }
+
+  & > li > button {
+    @apply lg:py-7;
+  }
+
+  .sticky-navbar & > li > a {
+    @apply lg:py-5;
+  }
+
+  .sticky-navbar & > li > button {
+    @apply lg:py-5;
+  }
+}
+
+@utility menu-scroll {
+  &.active {
+    @apply text-primary;
+  }
+}
+
+@utility active {
+  &.menu-scroll {
+    @apply text-primary;
+  }
+
+  /* .dark .title {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+  } */
+
+  .submenu-item &a {
+    @apply text-primary dark:text-white;
+  }
+  .submenu-item &a span svg {
+    @apply rotate-180;
+  }
+
+  .portfolio-btn-wrapper &button {
+    @apply underline;
+  }
+}
+
+@utility menu-wrapper {
+  @apply hidden;
+
+  &.show {
+    @apply flex;
+  }
+}
+
+@utility show {
+  &.menu-wrapper {
+    @apply flex;
+  }
+}
+
+@utility title {
+  background: linear-gradient(
+    180deg,
+    rgba(74, 108, 247, 0.4) 0%,
+    rgba(74, 108, 247, 0) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  opacity: 0.2;
+  @apply absolute left-1/2 top-0 -translate-x-1/2 text-[40px] font-extrabold leading-none! sm:text-[60px] lg:text-[95px];
+}
+
+@utility submenu-item {
+  /* .dark .title {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+  } */
+
+  & a.active {
+    @apply text-primary dark:text-white;
+  }
+  & a.active span svg {
+    @apply rotate-180;
+  }
+}
+
+@utility grid-sizer {
+  @apply w-full md:w-1/2 lg:w-1/3;
+}
+
+@utility portfolio-btn-wrapper {
+  & button.active {
+    @apply underline;
+  }
+}
+
+@layer utilities {
+  /* third-party libraries CSS */
+  .tns-controls {
+    @apply absolute bottom-14 left-1/2 z-30 flex -translate-x-1/2 space-x-5 lg:left-[70px] lg:translate-x-0;
+  }
+
+  .tns-controls button {
+    @apply flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white dark:bg-white/10 dark:text-white dark:hover:bg-primary dark:hover:text-white;
+  }
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply border-stroke;
+  }
+
+  body {
+    @apply font-body;
+  }
+}
+
+@layer components {
+  html {
+    @apply scroll-smooth;
+  }
+}
