@@ -1,6 +1,9 @@
 node_modules
 dist
 .env
+.env.development
+.env.production
+.env.local
 .DS_Store
 .next
 **/node_modules
@@ -9,3 +12,7 @@ dist
 frontend/.next
 backend/node_modules
 frontend/node_modules
+
+# Environment files with real credentials
+local/.env.development
+local/.env.production

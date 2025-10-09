@@ -102,13 +102,84 @@ export default function PartsPicker() {
     warranty: ''
   })
 
-  // Simulate data loading with useEffect
+  // Load ALL data from backend API (handle pagination)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-    return () => clearTimeout(timer)
+    const fetchAllParts = async () => {
+      try {
+        setIsLoading(true)
+        let allParts = []
+        let page = 1
+        let hasMore = true
+        
+        // Fetch all pages of data
+        while (hasMore) {
+          const response = await fetch(`http://localhost:3000/search?page=${page}&page_size=50`)
+          if (response.ok) {
+            const data = await response.json()
+            allParts = [...allParts, ...data.items]
+            hasMore = data.has_more
+            page++
+          } else {
+            break
+          }
+        }
+        
+        // Transform backend data to match frontend format
+        const transformedParts = allParts.map(part => ({
+          id: part.sku,
+          name: part.name || 'Unknown Part',
+          brand: extractBrand(part.sku),
+          partType: categorizePartType(part.name, part.sku),
+          price: part.unit_price || 0,
+          domestic: part.is_domestic,
+          weight: part.weight_kg || 0,
+          manufacturer: mapOriginCountry(part.origin_country),
+          efficiency: '', // Not available in backend data
+          warranty: '', // Not available in backend data
+          originalData: part // Keep original for reference
+        }))
+        
+        setParts(transformedParts)
+        console.log(`Loaded ${transformedParts.length} parts from backend`)
+      } catch (error) {
+        console.error('Failed to fetch parts:', error)
+        // Keep existing hardcoded data as fallback
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchAllParts()
   }, [])
+
+  // Helper functions for better data transformation
+  const extractBrand = (sku) => {
+    if (!sku) return 'Unknown'
+    const parts = sku.split(' ')
+    return parts[0] || 'Unknown'
+  }
+
+  const categorizePartType = (name, sku) => {
+    if (!name && !sku) return 'Unknown'
+    const text = (name + ' ' + sku).toLowerCase()
+    
+    if (text.includes('panel') || text.includes('solar')) return 'Solar Panel'
+    if (text.includes('inverter')) return 'Inverter'
+    if (text.includes('breaker')) return 'Breaker'
+    if (text.includes('connector') || text.includes('conn')) return 'Connector'
+    if (text.includes('rail') || text.includes('mount')) return 'Mounting'
+    if (text.includes('fuse')) return 'Fuse'
+    return name || 'Component'
+  }
+
+  const mapOriginCountry = (country) => {
+    const mapping = {
+      'US': 'USA',
+      'NONUS': 'Non-US',
+      'UNKNOWN': 'Unknown Origin'
+    }
+    return mapping[country] || country || 'Unknown'
+  }
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -157,17 +228,72 @@ export default function PartsPicker() {
     alert('Part added successfully!')
   }
 
-  const filteredParts = parts.filter(part => {
-    const matchesSearch = part.name.toLowerCase().includes(searchTerm.toLowerCase())
-                          || part.brand.toLowerCase().includes(searchTerm.toLowerCase())
-                          || part.id.toLowerCase().includes(searchTerm.toLowerCase())
+  // Live search function with server-side filtering
+  const performLiveSearch = async (query) => {
+    if (!query.trim()) {
+      // If no search term, reload all parts
+      window.location.reload() // Simple reload to get all parts
+      return
+    }
 
+    try {
+      setIsLoading(true)
+      let allSearchResults = []
+      let page = 1
+      let hasMore = true
+      
+      // Fetch all pages of search results
+      while (hasMore) {
+        const response = await fetch(`http://localhost:3000/search?q=${encodeURIComponent(query)}&page=${page}&page_size=50`)
+        if (response.ok) {
+          const data = await response.json()
+          allSearchResults = [...allSearchResults, ...data.items]
+          hasMore = data.has_more
+          page++
+        } else {
+          break
+        }
+      }
+      
+      const transformedParts = allSearchResults.map(part => ({
+        id: part.sku,
+        name: part.name || 'Unknown Part',
+        brand: extractBrand(part.sku),
+        partType: categorizePartType(part.name, part.sku),
+        price: part.unit_price || 0,
+        domestic: part.is_domestic,
+        weight: part.weight_kg || 0,
+        manufacturer: mapOriginCountry(part.origin_country),
+        efficiency: '',
+        warranty: '',
+        originalData: part
+      }))
+      
+      setParts(transformedParts)
+      console.log(`Found ${transformedParts.length} parts matching "${query}"`)
+    } catch (error) {
+      console.error('Search failed:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle search with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performLiveSearch(searchTerm)
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm])
+
+  const filteredParts = parts.filter(part => {
     const matchesType = filterType === 'all' || part.partType === filterType
     const matchesOrigin = filterOrigin === 'all' ||
                           (filterOrigin === 'domestic' && part.domestic) ||
                           (filterOrigin === 'foreign' && !part.domestic)
 
-    return matchesSearch && matchesType && matchesOrigin
+    return matchesType && matchesOrigin
   })
 
     // Loading state  
@@ -223,16 +349,32 @@ export default function PartsPicker() {
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search Parts
+                    Live Search Parts ({parts.length} items)
                   </label>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by name or brand"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search by name, brand, SKU, or part type..."
+                      className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
-                    </div>
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  {searchTerm && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      🔍 Searching backend for "{searchTerm}"...
+                    </p>
+                  )}
+                </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Part Type

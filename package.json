@@ -8,7 +8,12 @@
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
-    "install:all": "npm run install:backend && npm run install:frontend"
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:dev": "docker-compose up --build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
