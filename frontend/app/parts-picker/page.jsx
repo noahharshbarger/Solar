@@ -231,8 +231,8 @@ export default function PartsPicker() {
   // Live search function with server-side filtering
   const performLiveSearch = async (query) => {
     if (!query.trim()) {
-      // If no search term, reload all parts
-      window.location.reload() // Simple reload to get all parts
+      // If no search term, reset to all parts (refetch or use initial data)
+      setParts(solarParts)
       return
     }
 

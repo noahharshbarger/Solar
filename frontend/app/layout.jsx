@@ -1,5 +1,12 @@
-import '../src/styles/globals.css'
+
+import '../styles/globals.css'
+import { Inter } from 'next/font/google'
 import Link from 'next/link'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata = {
   title: 'Solar Parts Analysis System',
@@ -8,8 +15,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={inter.variable}>
+      <body className={inter.className}>
         <header className="bg-white shadow-md">
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
