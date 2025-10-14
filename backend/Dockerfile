@@ -1,38 +1,53 @@
-# Multi-stage build for Node.js backend
-FROM node:18-alpine as dependencies
+# Multi-stage build for Node.js backend (Express/Prisma example)
+FROM node:18-alpine AS dependencies
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including devDependencies)
+RUN npm ci
+
+# Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files and lockfile from context
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
 
 # Generate Prisma client
 RUN npx prisma generate
 
+# (Optional) Build your backend if needed
+# RUN npm run build
+
+# Remove devDependencies for production
+RUN npm prune --production && npm cache clean --force
+
 # Production stage
-FROM node:18-alpine as runner
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
+RUN adduser --system --uid 1001 backend
 
-# Copy dependencies and generated client
-COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=dependencies --chown=nodejs:nodejs /app/prisma ./prisma
+# Copy built application and node_modules from builder
+COPY --from=builder --chown=backend:nodejs /app ./
 
-# Copy application code
-COPY --chown=nodejs:nodejs src ./src
-COPY --chown=nodejs:nodejs data ./data
-COPY --chown=nodejs:nodejs package*.json ./
-
-USER nodejs
+USER backend
 
 EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
 
 CMD ["npm", "start"]
