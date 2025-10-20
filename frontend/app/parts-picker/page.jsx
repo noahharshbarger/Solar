@@ -299,7 +299,7 @@ export default function PartsPicker() {
     // Loading state  
     if (isLoading) {
       return (
-        <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+        <main className="min-h-screen bg-grey-100">
           <div className="container mx-auto px-4 py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -311,52 +311,28 @@ export default function PartsPicker() {
     }
 
     return (
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <main className="min-h-screen bg-grey-100">
         <div className="container mx-auto px-4 py-16">
           <nav className="mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Link href="/" className="hover:text-blue-600">Home</Link>
-                <span>➡️</span>
-                <span className="text-gray-900 font-medium">Parts Picker</span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href="/appointments" 
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  📅 Appointments
-                </Link>
-                <Link
-                  href="/api-demo"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    API Demo
-                  </Link>
-              </div>
-            </div>
           </nav>
           <div className="rounded-xl shadow-lg p-6 border border-gray-100">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Solar Parts Search
+              <h1 className="text-4xl font-bold text-[#053e7f] mb-4">
+                Search Parts Database
               </h1>
-              <p className="text-lg text-gray-600 mb-8">
-                Compare components with specifications
-              </p>
             </div>
             <div className="rounded-xl shadow-lg p-8 border border-gray-100 mb-12">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Live Search Parts ({parts.length} items)
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
+                    Live Search Parts
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search by name, brand, SKU, or part type..."
+                      placeholder="Search name, brand, SKU, or part type..."
                       className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     {searchTerm && (
@@ -376,7 +352,7 @@ export default function PartsPicker() {
                   )}
                 </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                         Part Type
                       </label>
                       <select
@@ -391,7 +367,7 @@ export default function PartsPicker() {
                         </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                     Manufacturing Origin
                   </label>
                   <select
@@ -409,7 +385,7 @@ export default function PartsPicker() {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                className="bg-[#053e7f] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#08284f] transition-colors"
                 >
                   {showAddForm ? 'Cancel' : 'Add New Part'}
                 </button>
@@ -616,18 +592,18 @@ export default function PartsPicker() {
                     <p><span className="font-medium">Weight:</span> {part.weight} lbs</p>
                     <p><span className="font-medium">Made in:</span> {part.manufacturer}</p>
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-12 pt-4">
                       <button
                         onClick={() => router.push(`/parts/${part.id}`)}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center"
+                        className="flex-1 bg-[#0a4b8c] font-semibold text-white py-2 px-4 rounded-lg hover:bg-[#053e7f] transition-colors text-center"
                         >
                           View Details
                         </button>
                         <Link
                         href="/compare"
-                        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-center"
+                        className="flex-1 bg-[#ffd700] text-black font-bold py-2 px-4 rounded-lg hover:bg-[#d1b200] transition-colors text-center"
                         >
-                          Compare
+                          Compare Parts
                         </Link>
                         </div>
                         </div>
