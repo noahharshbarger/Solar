@@ -41,8 +41,11 @@ export default function RootLayout({ children }) {
                 <Link href="/compare" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
                   FINANCING COMPARE
                 </Link>
-                <Link href="/appointments" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
+                {/* <Link href="/appointments" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
                   SCHEDULE
+                </Link> */}
+                <Link href="/projects" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
+                  PROJECTS
                 </Link>
               </nav>
             </div>
@@ -55,12 +58,11 @@ export default function RootLayout({ children }) {
             <p className="text-gray-300 font-semibold">
               &copy; {new Date().getFullYear()} Unified Construction and Restoration. All rights reserved.
             </p>
-            <a href="mailto:info@ucandr.com" className="text-gray-300 font-semibold text-4xl mx-2 gap-4">
-              ✉️
+            <div className="border rounded border-gray-300 background-gray-100 font-semibold mt-4 pt-2 pb-2 px-4 inline-block">
+            <a href="mailto:info@ucandr.com" className="text-white font-semibold">
+              Contact Support
             </a>
-            <a href="tel:2402467172" className="text-gray-300 font-semibold text-4xl mx-2">
-              📞
-            </a>
+            </div>
           </div>
         </footer>
       </body>

@@ -5,73 +5,67 @@ import { useRouter } from 'next/navigation'
 
 const solarParts = [
   {
-    id: 'SPW-400-D',
+    sku: 'SPW-400-D',
     name: 'SunPower Maxeon 3 400W',
     brand: 'SunPower',
     partType: 'Solar Panel',
     price: 299,
     domestic: true,
-    weight: 42.3,
     manufacturer: 'USA - Oregon',
     efficiency: '22.6%',
     warranty: '25 years'
   },
   {
-    id: 'JINKO-350-ND',
+    sku: 'JINKO-350-ND',
     name: 'JinkoSolar Tiger Pro 350W',
     brand: 'JinkoSolar',
     partType: 'Solar Panel',
     price: 189,
     domestic: false,
-    weight: 38.7,
     manufacturer: 'China - Jiangxi',
     efficiency: '20.78%',
     warranty: '12 years'
   },
   {
-    id: 'SE-5K-D',
+    sku: 'SE-5K-D',
     name: 'SolarEdge HD-Wave 5000',
     brand: 'SolarEdge',
     partType: 'Inverter',
     price: 1299,
     domestic: true,
-    weight: 28.2,
     manufacturer: 'USA - New Hampshire',
     efficiency: '99%',
     warranty: '12 years'
   },
   {
-    id: 'HUAWEI-8K-ND',
+    sku: 'HUAWEI-8K-ND',
     name: 'Huawei SUN2000-8KTL',
     brand: 'Huawei',
     partType: 'Inverter',
     price: 1899,
     domestic: false,
-    weight: 26.5,
     manufacturer: 'China - Shenzhen',
     efficiency: '98.4%',
     warranty: '10 years'
   },
   {
-    id: 'TESLA-13.5-ND',
+    sku: 'TESLA-13.5-ND',
     name: 'Tesla Powerwall 2',
     brand: 'Tesla',
     partType: 'Battery',
     price: 7500,
     domestic: false,
-    weight: 276,
     manufacturer: 'China - Shanghai',
     capacity: '13.5 kWh',
     warranty: '10 years'
   },
   {
-    id: 'ENPHASE-IQ8-D',
+    sku: 'ENPHASE-IQ8-D',
     name: 'Enphase IQ8+ Microinverter',
     brand: 'Enphase',
     partType: 'Microinverter',
     price: 149,
     domestic: true,
-    weight: 1.5,
     manufacturer: 'USA - California',
     efficiency: '97.5%',
     warranty: '25 years'
@@ -90,13 +84,12 @@ export default function PartsPicker() {
 
   // Teaching: Form state management for adding new parts
   const [newPart, setNewPart] = useState({
-    id: '',
+    sku: '',
     name: '',
     brand: '',
     partType: 'Solar Panel',
     price: '',
     domestic: true,
-    weight: '',
     manufacturer: '',
     efficiency: '',
     warranty: ''
@@ -126,13 +119,12 @@ export default function PartsPicker() {
         
         // Transform backend data to match frontend format
         const transformedParts = allParts.map(part => ({
-          id: part.sku,
+          sku: part.sku,
           name: part.name || 'Unknown Part',
           brand: extractBrand(part.sku),
-          partType: categorizePartType(part.name, part.sku),
+          partType: part.partType || 'Unknown',
           price: part.unit_price || 0,
           domestic: part.is_domestic,
-          weight: part.weight_kg || 0,
           manufacturer: mapOriginCountry(part.origin_country),
           efficiency: '', // Not available in backend data
           warranty: '', // Not available in backend data
@@ -159,19 +151,6 @@ export default function PartsPicker() {
     return parts[0] || 'Unknown'
   }
 
-  const categorizePartType = (name, sku) => {
-    if (!name && !sku) return 'Unknown'
-    const text = (name + ' ' + sku).toLowerCase()
-    
-    if (text.includes('panel') || text.includes('solar')) return 'Solar Panel'
-    if (text.includes('inverter')) return 'Inverter'
-    if (text.includes('breaker')) return 'Breaker'
-    if (text.includes('connector') || text.includes('conn')) return 'Connector'
-    if (text.includes('rail') || text.includes('mount')) return 'Mounting'
-    if (text.includes('fuse')) return 'Fuse'
-    return name || 'Component'
-  }
-
   const mapOriginCountry = (country) => {
     const mapping = {
       'US': 'USA',
@@ -192,33 +171,31 @@ export default function PartsPicker() {
   const handleAddPart = (e) => {
     e.preventDefault()
 
-    // Basic validation
-    if (!newPart.name || !newPart.brand || !newPart.price || !newPart.id) {
+    // Basic valskuation
+    if (!newPart.name || !newPart.brand || !newPart.price || !newPart.sku) {
       alert('Please fill in all required fields')
       return
     }
 
-    if (parts.some(part => part.id === newPart.id)) {
-      alert('Part ID already exists. Please use a unique ID.')
+    if (parts.some(part => part.sku === newPart.sku)) {
+      alert('Part sku already exists. Please use a unique sku.')
       return 
     }
 
     const partToAdd = {
       ...newPart,
       price: parseFloat(newPart.price),
-      weight: parseFloat(newPart.weight) || 0
     }
 
     setParts(prev => [...prev, partToAdd])
 
     setNewPart({
-      id: '',
+      sku: '',
       name: '',
       brand: '',
       partType: 'Solar Panel',
       price: '',
       domestic: true,
-      weight: '',
       manufacturer: '',
       efficiency: '',
       warranty: ''
@@ -228,7 +205,7 @@ export default function PartsPicker() {
     alert('Part added successfully!')
   }
 
-  // Live search function with server-side filtering
+  // Live search function with server-sskue filtering
   const performLiveSearch = async (query) => {
     if (!query.trim()) {
       // If no search term, reset to all parts (refetch or use initial data)
@@ -256,19 +233,19 @@ export default function PartsPicker() {
       }
       
       const transformedParts = allSearchResults.map(part => ({
-        id: part.sku,
+        sku: part.sku,
         name: part.name || 'Unknown Part',
         brand: extractBrand(part.sku),
-        partType: categorizePartType(part.name, part.sku),
+        partType: part.partType || 'Unknown',
         price: part.unit_price || 0,
         domestic: part.is_domestic,
-        weight: part.weight_kg || 0,
         manufacturer: mapOriginCountry(part.origin_country),
         efficiency: '',
         warranty: '',
         originalData: part
       }))
-      
+      console.log(typeof transformedParts)
+
       setParts(transformedParts)
       console.log(`Found ${transformedParts.length} parts matching "${query}"`)
     } catch (error) {
@@ -280,11 +257,11 @@ export default function PartsPicker() {
 
   // Handle search with debouncing
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    const timeoutsku = setTimeout(() => {
       performLiveSearch(searchTerm)
     }, 300) // 300ms debounce
 
-    return () => clearTimeout(timeoutId)
+    return () => clearTimeout(timeoutsku)
   }, [searchTerm])
 
   const filteredParts = parts.filter(part => {
@@ -322,7 +299,7 @@ export default function PartsPicker() {
               </h1>
             </div>
             <div className="rounded-xl shadow-lg p-8 border border-gray-100 mb-12">
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grsku md:grsku-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                     Live Search Parts
@@ -396,15 +373,15 @@ export default function PartsPicker() {
             <div className="bg-blue-100 rounded-xl shadow-xl p-8 border-2 border-blue-300 mb-8">
               <h3 className="text-2xl font-bold mb-6 text-blue-900">Add New Part</h3>
               <form onSubmit={handleAddPart} className="space-y-6">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grsku md:grsku-cols-2 lg:grsku-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Part ID *
+                      Part sku *
                     </label>
                     <input
                       type="text"
-                      name="id"
-                      value={newPart.id}
+                      name="sku"
+                      value={newPart.sku}
                       onChange={handleInputChange}
                       placeholder="e.g., SPW-450-D"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -469,21 +446,6 @@ export default function PartsPicker() {
                         step="0.01"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
-                        />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Weight (lbs)
-                      </label>
-                      <input
-                        type="number"
-                        name="weight"
-                        value={newPart.weight}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 40.0 lbs"
-                        min="0"
-                        step="0.1"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                     <div>
@@ -565,16 +527,16 @@ export default function PartsPicker() {
               {searchTerm && ` matching "${searchTerm}"`}
             </p>
           </div>
-          <div className="grid gap-6 mb-12">
+          <div className="grsku gap-6 mb-12">
             {filteredParts.map((part) => (
               <div 
-                key={part.id}
+                key={part.sku}
                 className="rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-1">{part.name}</h3>
-                      <p className="text-sm text-gray-500">{part.id}</p>
+                      <p className="text-sm text-gray-500">{part.sku}</p>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       part.domestic
@@ -589,12 +551,11 @@ export default function PartsPicker() {
                     <p><span className="font-medium">Brand:</span> {part.brand}</p>
                     <p><span className="font-medium">Type:</span> {part.brand}</p>
                     <p><span className="font-medium">Price:</span> <span className="text-green-600 font-bold">${part.price.toLocaleString()}</span></p>
-                    <p><span className="font-medium">Weight:</span> {part.weight} lbs</p>
                     <p><span className="font-medium">Made in:</span> {part.manufacturer}</p>
                     
                     <div className="flex gap-12 pt-4">
                       <button
-                        onClick={() => router.push(`/parts/${part.id}`)}
+                        onClick={() => router.push(`/parts/${part.sku}`)}
                         className="flex-1 bg-[#0a4b8c] font-semibold text-white py-2 px-4 rounded-lg hover:bg-[#053e7f] transition-colors text-center"
                         >
                           View Details
