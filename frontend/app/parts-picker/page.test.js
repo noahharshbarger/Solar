@@ -38,12 +38,16 @@ describe('PartsPicker', () => {
     
     it('can open and close the add part form', async () => {
         render(<PartsPicker />);
-        await waitFor(() => expect(screen.queryByText(/Loading solar parts database/i)).not.screen.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText(/Loading solar parts database/i)).not.toBeInTheDocument());
         const addButton = screen.getByRole('button', { name: /add new part/i });
-        fireEvent.click(addButton);
-        expect(screen.getByText(/Add New Part/i)).toBeInTheDocument();
+        await waitFor(() => {
+            fireEvent.click(addButton);
+            expect(screen.getByText(/Add New Part/i)).toBeInTheDocument();
+        });
         const cancelButtons = screen.getAllByRole('button', { name: /cancel/i });
-        fireEvent.click(cancelButtons[cancelButtons.length - 1]);
-        expect(screen.queryByRole('heading', { name: /Add New Part/i })).not.toBeInTheDocument();
+        await waitFor(() => {
+            fireEvent.click(cancelButtons[cancelButtons.length - 1]);
+            expect(screen.queryByRole('heading', { name: /Add New Part/i })).not.toBeInTheDocument();
+        });
     });
 });

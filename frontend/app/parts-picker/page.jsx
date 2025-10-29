@@ -1,7 +1,12 @@
 'use client'
+
+import React from 'react';
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { fetchParts } from '../../api'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
 const solarParts = [
   {
@@ -106,15 +111,10 @@ export default function PartsPicker() {
         
         // Fetch all pages of data
         while (hasMore) {
-          const response = await fetch(`http://localhost:3000/search?page=${page}&page_size=50`)
-          if (response.ok) {
-            const data = await response.json()
-            allParts = [...allParts, ...data.items]
-            hasMore = data.has_more
-            page++
-          } else {
-            break
-          }
+          const { parts: fetchedParts, hasMore: more } = await fetchParts({ page, parts: allParts})
+          allParts = [...allParts, ...fetchedParts]
+          hasMore = more
+          page++
         }
         
         // Transform backend data to match frontend format
@@ -219,17 +219,11 @@ export default function PartsPicker() {
       let page = 1
       let hasMore = true
       
-      // Fetch all pages of search results
       while (hasMore) {
-        const response = await fetch(`http://localhost:3000/search?q=${encodeURIComponent(query)}&page=${page}&page_size=50`)
-        if (response.ok) {
-          const data = await response.json()
-          allSearchResults = [...allSearchResults, ...data.items]
-          hasMore = data.has_more
-          page++
-        } else {
-          break
-        }
+        const { parts, hasMore: more } = await fetchParts({ page, parts: allSearchResults, search: query })
+        allSearchResults = [...allSearchResults, ...parts]
+        hasMore = more
+        page++
       }
       
       const transformedParts = allSearchResults.map(part => ({

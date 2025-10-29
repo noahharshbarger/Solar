@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import { fetchProjects, fetchDesignDetails } from "../../api";
 
 export default function ComparePage() {
   const [projects, setProjects] = useState([]);
@@ -15,8 +14,7 @@ export default function ComparePage() {
   
     useEffect(() => {
       setLoading(true);
-      fetch(`${API_BASE_URL}/compare/projects?page=1&per_page=10`)
-        .then((res) => res.json())
+      fetchProjects({ page: 1, perPage: 20 })
         .then((data) => {
           setProjects(data.items || []);
           setLoading(false);
@@ -30,30 +28,33 @@ export default function ComparePage() {
   useEffect(() => {
     if (!selectedDesign) return;
     setLoading(true);
-    fetch(`${API_BASE_URL}/compare/${selectedDesign}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDesignDetails(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError("Failed to load design details");
-        setLoading(false);
-      });
+      fetchDesignDetails(selectedDesign)
+        .then((data) => {
+          setDesignDetails(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError("Failed to load design details");
+          setLoading(false);
+        });
   }, [selectedDesign]);
 
   return (
     <div className="container mx-auto mt-20 p-4 border rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Compare Projects & Designs</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      <ul className="space-y-4">
+  <h1 className="text-2xl font-bold mb-4" tabIndex="0">Compare Projects & Designs</h1>
+  {/* Example: Accessible heading hierarchy */}
+  <h2 className="sr-only">Project Comparison List</h2>
+  {loading && <p role="status" aria-live="polite" tabIndex="0">Loading...</p>}
+  {error && <p className="text-red-600" role="alert" aria-live="assertive" tabIndex="0">{error}</p>}
+  <ul className="space-y-4" role="list">
         {projects.length === 0 && !loading && <li>No projects found.</li>}
         {projects.map((project) => {
           return (
-            <li key={project.project_id} className="border rounded p-4">
-              <div className="font-bold text-lg mb-1">{project.project_name}</div>
+            <li key={project.project_id} className="border rounded p-4" role="listitem" tabIndex="0">
+              <div className="font-bold text-lg mb-1" tabIndex="0">{project.project_name}</div>
               <div className="text-sm text-gray-500 mb-2">{project.project_id}</div>
+              {/* Example: Accessible image with alt text */}
+              {/* <img src={project.imageUrl} alt={`Image of ${project.project_name}`} className="mb-2" /> */}
               {project.designs && project.designs.length > 0 && (
                 <div>
                   <span className="font-semibold">Designs:</span>
@@ -64,9 +65,12 @@ export default function ComparePage() {
                           <button
                             className="text-green-700 underline mr-2"
                             onClick={() => setSelectedDesign(design.design_id)}
+                            aria-label={`View design details for ${design.name} in ${project.project_name}`}
                           >
                             {design.name}
                           </button>
+                          {/* Example: Keyboard instructions for users */}
+                          <span className="sr-only">Press Enter to view details</span>
                         </li>
                       )
                     })}
