@@ -42,7 +42,6 @@ export default function Projects() {
     return (
         <div className="container mx-auto mt-20 p-4 border rounded-lg shadow-lg">
             <h1 className="text-2xl font-bold mb-4" tabIndex="0">Projects</h1>
-            {/* Example: Accessible heading hierarchy */}
             <h2 className="sr-only">Project List</h2>
             {loading && <p role="status" aria-live="polite" tabIndex="0">Loading...</p>}
             {error && <p className="text-red-600" role="alert" aria-live="assertive" tabIndex="0">{error}</p>}
@@ -51,8 +50,6 @@ export default function Projects() {
                 {projects.map((project) => (
                     <li key={project.project_id} className="border rounded p-4" role="listitem" tabIndex="0">
                         <div className="font-bold text-lg mb-1" tabIndex="0">{project.project_name}</div>
-                        {/* Example: Accessible image with alt text */}
-                        {/* <img src={project.imageUrl} alt={`Image of ${project.project_name}`} className="mb-2" /> */}
                         <div className="text-sm text-gray-500 mb-2">Project ID: {project.project_id}</div>
                         <div className="mt-2">
                             <span className="font-semibold">Totals:</span>
@@ -92,7 +89,6 @@ export default function Projects() {
                     <div className="mb-2">Price Per Watt: {designDetails.ppw ?? "N/A"}</div>
                     <div className="mb-2">Base System Price: ${designDetails.base_system_price ?? "N/A"}</div>
                     <div className="mb-2">Component Count: {designDetails.component_count ?? 0}</div>
-                    <div className="mb-2">Incentives: {designDetails.incentives?.length ? designDetails.incentives.join(", ") : "None"}</div>
                     <h3 className="font-semibold mt-4 mb-2">Component Breakdown</h3>
                     <table className="w-full text-sm border">
                         <thead>
