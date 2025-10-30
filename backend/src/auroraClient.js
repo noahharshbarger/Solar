@@ -14,7 +14,7 @@ function makeAurora() {
     timeout: 30000,
     headers: {
       Authorization: `Bearer ${token}`,
-      "Aurora-Vewhrsion": version, // response shape can vary by version
+      "Aurora-Version": version, // response shape can vary by version
       Accept: "application/json",
     },
   });
