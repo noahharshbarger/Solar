@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed:xlsx": "ts-node prisma/seed-from-xlsx.ts",
+    "seed:xlsx": "node prisma/seed-from-xlsx.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
@@ -33,10 +33,10 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/node": "^24.6.0",
+    "@types/node": "^24.7.0",
     "nodemon": "^3.1.10",
-    "prisma": "^6.16.2",
+    "prisma": "^6.16.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }
