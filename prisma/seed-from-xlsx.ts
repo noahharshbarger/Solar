@@ -1,25 +1,19 @@
-import { PrismaClient } from "@prisma/client";
-import * as XLSX from "xlsx";
-import fs from "fs";
-import path from "path";
+// prisma/seed-from-xlsx.js
+const { PrismaClient } = require("@prisma/client");
+const XLSX = require("xlsx");
+const fs = require("fs");
+const path = require("path");
 
 const prisma = new PrismaClient();
 
-type Mapping = {
-  sheetName: number | string;
-  headerStartsAt: string;               // e.g., "A1" or "A4"
-  columns: { sku: string; brand: string; partType: string; price: string; domestic: string };
-  priceCurrency?: string;
-};
-
-function parseBoolDomestic(val: any): boolean | null {
+function parseBoolDomestic(val) {
   if (val == null) return null;
   const s = String(val).trim().toLowerCase();
   if (["d","domestic","yes","y","us","usa","true","t"].includes(s)) return true;
   if (["nd","non-domestic","no","n","non domestic","false","f"].includes(s)) return false;
   return null;
 }
-function parsePrice(val: any): number | null {
+function parsePrice(val) {
   if (val == null || val === "") return null;
   const num = Number(String(val).replace(/[^0-9.\-]/g, ""));
   return Number.isFinite(num) ? num : null;
@@ -28,7 +22,7 @@ function parsePrice(val: any): number | null {
 async function main() {
   const mappingPath = path.join(process.cwd(), "data", "raw", "mapping.json");
   if (!fs.existsSync(mappingPath)) throw new Error(`Missing mapping file: ${mappingPath}`);
-  const map: Mapping = JSON.parse(fs.readFileSync(mappingPath, "utf8"));
+  const map = JSON.parse(fs.readFileSync(mappingPath, "utf8"));
 
   const xlsxPath = path.join(process.cwd(), "data", "raw", "material list (1).xlsx");
   if (!fs.existsSync(xlsxPath)) throw new Error(`Missing Excel: ${xlsxPath}`);
@@ -36,16 +30,18 @@ async function main() {
   const wb = XLSX.readFile(xlsxPath);
   const wsName = typeof map.sheetName === "number" ? wb.SheetNames[map.sheetName] : map.sheetName;
   const ws = wb.Sheets[wsName];
-  if (!ws) throw new Error(`Sheet not found: ${wsName}`);
+  if (!ws) throw new Error(`Sheet not found: ${wsName} (available: ${wb.SheetNames.join(", ")})`);
 
-  const rows: any[] = XLSX.utils.sheet_to_json(ws, { range: map.headerStartsAt, defval: null });
+  const rows = XLSX.utils.sheet_to_json(ws, { range: map.headerStartsAt, defval: null });
   if (!rows.length) throw new Error("No rows parsed from Excel. Check headerStartsAt in mapping.json.");
 
-  // Validate headers exist
+  // Validate headers exist (these are the keys produced from your header row)
   const headers = Object.keys(rows[0]);
-  ["sku","brand","partType","price","domestic"].forEach(k => {
-    const col = (map.columns as any)[k];
-    if (!headers.includes(col)) throw new Error(`Column "${col}" not found. Headers: ${headers.join(", ")}`);
+  ["sku","brand","partType","price","domestic"].forEach((k) => {
+    const col = map.columns[k];
+    if (!headers.includes(col)) {
+      throw new Error(`Column "${col}" not found in Excel. Headers: ${headers.join(", ")}`);
+    }
   });
 
   let created = 0, updated = 0, skipped = 0;
@@ -66,7 +62,7 @@ async function main() {
     await prisma.part.upsert({
       where: { sku },
       create: { sku, name, unitPrice: price, weightKg: null, originCountry, isDomestic: dom ?? false },
-      update: { name, unitPrice: price, originCountry, isDomestic: dom ?? false }
+      update: { name, unitPrice: price, originCountry, isDomestic: dom ?? false },
     });
     prev ? updated++ : created++;
   }
