@@ -84,6 +84,14 @@ export default function PartsPicker() {
   const [isLoading, setIsLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
   const [parts, setParts] = useState(solarParts)
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const PARTS_PER_PAGE = 5
+
+  // Reset pagination to first page on search/filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filterType, filterOrigin])
 
   const router = useRouter()
 
@@ -263,9 +271,15 @@ export default function PartsPicker() {
     const matchesOrigin = filterOrigin === 'all' ||
                           (filterOrigin === 'domestic' && part.domestic) ||
                           (filterOrigin === 'foreign' && !part.domestic)
-
     return matchesType && matchesOrigin
   })
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredParts.length / PARTS_PER_PAGE)
+  const paginatedParts = filteredParts.slice(
+    (currentPage - 1) * PARTS_PER_PAGE,
+    currentPage * PARTS_PER_PAGE
+  )
 
     // Loading state  
     if (isLoading) {
@@ -284,16 +298,13 @@ export default function PartsPicker() {
     return (
       <main className="min-h-screen bg-grey-100">
         <div className="container mx-auto px-4 py-16">
-          <nav className="mb-8">
-          </nav>
+          <nav className="mb-8"></nav>
           <div className="rounded-xl shadow-lg p-6 border border-gray-100">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-[#053e7f] mb-4">
-                Search Parts Database
-              </h1>
+              <h1 className="text-4xl font-bold text-[#053e7f] mb-4">Search Parts Database</h1>
             </div>
             <div className="rounded-xl shadow-lg p-8 border border-gray-100 mb-12">
-              <div className="grsku md:grsku-cols-3 gap-4">
+              <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                     Live Search Parts
@@ -322,20 +333,20 @@ export default function PartsPicker() {
                     </p>
                   )}
                 </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
-                        Part Type
-                      </label>
-                      <select
-                        value={filterType}
-                        onChange={(e) => setFilterType(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                          <option value="all">All Types</option>
-                          <option value="Solar Panel">Solar Panel</option>
-                          <option value="Inverter">Inverter</option>
-                          <option value="Battery">Battery</option>
-                          <option value="Microinverter">Microinverter</option>
-                        </select>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
+                    Part Type
+                  </label>
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="all">All Types</option>
+                      <option value="Solar Panel">Solar Panel</option>
+                      <option value="Inverter">Inverter</option>
+                      <option value="Battery">Battery</option>
+                      <option value="Microinverter">Microinverter</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
@@ -345,188 +356,89 @@ export default function PartsPicker() {
                     value={filterOrigin}
                     onChange={(e) => setFilterOrigin(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">All Origins</option>
-                      <option value="domestic">Domestic Only</option>
-                      <option value="foreign">Foreign Only</option>
-                    </select>
+                  >
+                    <option value="all">All Origins</option>
+                    <option value="domestic">Domestic Only</option>
+                    <option value="foreign">Foreign Only</option>
+                  </select>
+                </div>
               </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-[#053e7f] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#08284f] transition-colors"
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="bg-[#053e7f] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#08284f] transition-colors"
                 >
                   {showAddForm ? 'Cancel' : 'Add New Part'}
                 </button>
-            </div>
-          </div>
-
-          {showAddForm && (
-            <div className="bg-blue-100 rounded-xl shadow-xl p-8 border-2 border-blue-300 mb-8">
-              <h3 className="text-2xl font-bold mb-6 text-blue-900">Add New Part</h3>
-              <form onSubmit={handleAddPart} className="space-y-6">
-                <div className="grsku md:grsku-cols-2 lg:grsku-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Part sku *
-                    </label>
-                    <input
-                      type="text"
-                      name="sku"
-                      value={newPart.sku}
-                      onChange={handleInputChange}
-                      placeholder="e.g., SPW-450-D"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Part Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={newPart.name}
-                        onChange={handleInputChange}
-                        placeholder="e.g., SunPower Maxeon 3 500W"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Brand *
-                      </label>
-                      <input
-                        type="text"
-                        name="brand"
-                        value={newPart.brand}
-                        onChange={handleInputChange}
-                        placeholder="e.g., SunPower"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                        />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Part Type *
-                        </label>
-                        <select
-                          name="partType"
-                          value={newPart.partType}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="Solar Panel">Solar Panel</option>
-                            <option value="Inverter">Inverter</option>
-                            <option value="Battery">Battery</option>
-                            <option value="Microinverter">Microinverter</option>
-                          </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price ($) *
-                      </label>
-                      <input
-                        type="number"
-                        name="price"
-                        value={newPart.price}
-                        onChange={handleInputChange}
-                        placeholder='299'
-                        min="0"
-                        step="0.01"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                        />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Manufacturer Location
-                      </label>
-                      <input
-                        type="text"
-                        name="manufacturerLocation"
-                        value={newPart.manufacturerLocation}
-                        onChange={handleInputChange}
-                        placeholder="e.g. San Jose, CA"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Efficiency (%)
-                      </label>
-                      <input
-                        type="text"
-                        name="efficiency"
-                        value={newPart.efficiency}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 22.5%"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        </div>
-                        <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Warranty
-                          </label>
-                          <input
-                            type="text"
-                            name="warranty"
-                            value={newPart.warranty}
-                            onChange={handleInputChange}
-                            placeholder="e.g. 25 years"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={newPart.domestic}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label className="ml-2 block text-sm text-gray-700">
-                      Manufactured Domestically
-                    </label>
-                </div>
-                <div className="flex gap-4 items-center">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
-                  >
-                    Add Part
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddForm(false)}
-                    className="inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
-                    >
-                      Cancel
-                    </button>
-                </div>
-              </form>
               </div>
-          )}
-          
-
-          <div className="mb-6">
-            <p className="text-gray-600">
-              Showing {filteredParts.length} of {parts.length} Parts
-              {searchTerm && ` matching "${searchTerm}"`}
-            </p>
-          </div>
-          <div className="grsku gap-6 mb-12">
-            {filteredParts.map((part) => (
-              <div 
-                key={part.sku}
-                className="rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow"
+            </div>
+            {showAddForm && (
+              <div className="bg-blue-100 rounded-xl shadow-xl p-8 border-2 border-blue-300 mb-8">
+                <h3 className="text-2xl font-bold mb-6 text-blue-900">Add New Part</h3>
+                <form onSubmit={handleAddPart} className="space-y-6">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Part sku *</label>
+                      <input type="text" name="sku" value={newPart.sku} onChange={handleInputChange} placeholder="e.g., SPW-450-D" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Part Name *</label>
+                      <input type="text" name="name" value={newPart.name} onChange={handleInputChange} placeholder="e.g., SunPower Maxeon 3 500W" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Brand *</label>
+                      <input type="text" name="brand" value={newPart.brand} onChange={handleInputChange} placeholder="e.g., SunPower" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Part Type *</label>
+                      <select name="partType" value={newPart.partType} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="Solar Panel">Solar Panel</option>
+                        <option value="Inverter">Inverter</option>
+                        <option value="Battery">Battery</option>
+                        <option value="Microinverter">Microinverter</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Price ($) *</label>
+                      <input type="number" name="price" value={newPart.price} onChange={handleInputChange} placeholder='299' min="0" step="0.01" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Manufacturer Location</label>
+                      <input type="text" name="manufacturerLocation" value={newPart.manufacturerLocation} onChange={handleInputChange} placeholder="e.g. San Jose, CA" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Efficiency (%)</label>
+                      <input type="text" name="efficiency" value={newPart.efficiency} onChange={handleInputChange} placeholder="e.g. 22.5%" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Warranty</label>
+                      <input type="text" name="warranty" value={newPart.warranty} onChange={handleInputChange} placeholder="e.g. 25 years" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" name="isActive" checked={newPart.domestic} onChange={handleInputChange} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    <label className="ml-2 block text-sm text-gray-700">Manufactured Domestically</label>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <button type="submit" className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">Add Part</button>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            )}
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Showing {paginatedParts.length} of {filteredParts.length} Parts (Page {currentPage} of {totalPages})
+                {searchTerm && ` matching "${searchTerm}"`}
+              </p>
+            </div>
+            <div className="grsku gap-6 mb-12">
+              {paginatedParts.map((part) => (
+                <div 
+                  key={part.sku}
+                  className="rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow"
                 >
+                  {/* ...existing part card code... */}
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-semibold mb-1">{part.name}</h3>
@@ -537,36 +449,53 @@ export default function PartsPicker() {
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                     }`}>
-                    {part.domestic ? 'Domestic' : 'Foreign'}
+                      {part.domestic ? 'Domestic' : 'Foreign'}
                     </span>
                   </div>
-
                   <div className="space-y-2 text-sm-mb-4">
                     <p><span className="font-medium">Brand:</span> {part.brand}</p>
                     <p><span className="font-medium">Type:</span> {part.brand}</p>
                     <p><span className="font-medium">Price:</span> <span className="text-green-600 font-bold">${part.price.toLocaleString()}</span></p>
                     <p><span className="font-medium">Made in:</span> {part.manufacturer}</p>
-                    
                     <div className="flex gap-12 pt-4">
                       <button
                         onClick={() => router.push(`/parts/${part.sku}`)}
                         className="flex-1 bg-[#0a4b8c] font-semibold text-white py-2 px-4 rounded-lg hover:bg-[#053e7f] transition-colors text-center"
-                        >
-                          View Details
-                        </button>
-                        <Link
+                      >
+                        View Details
+                      </button>
+                      <Link
                         href="/compare"
                         className="flex-1 bg-[#ffd700] text-black font-bold py-2 px-4 rounded-lg hover:bg-[#d1b200] transition-colors text-center"
-                        >
-                          Compare Parts
-                        </Link>
-                        </div>
-                        </div>
-                        </div>
-            ))}
+                      >
+                        Compare Parts
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {filteredParts.length === 0 && (
+            {/* Pagination Controls */}
+            {filteredParts.length > PARTS_PER_PAGE && (
+              <div className="flex justify-center items-center gap-4 mb-8">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            {paginatedParts.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-4xl mb-4">🔍</div>
                 <h3 className="text-xl font-semibold mb-2">No parts found</h3>
@@ -578,13 +507,13 @@ export default function PartsPicker() {
                     setFilterOrigin('all')
                   }}
                   className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-colors"
-                  >
-                    Clear All Filters
-                  </button>
-                </div>
+                >
+                  Clear All Filters
+                </button>
+              </div>
             )}
           </div>
         </div>
       </main>
     )
-    }
+  }
