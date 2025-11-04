@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-import * as XLSX from "xlsx";
-import fs from "fs";
-import path from "path";
+const { PrismaClient } = require("@prisma/client");
+const XLSX = require("xlsx");
+const fs = require("fs");
+const path = require("path");
 
 const prisma = new PrismaClient();
 
@@ -34,12 +34,37 @@ async function main() {
   if (!fs.existsSync(xlsxPath)) throw new Error(`Missing Excel: ${xlsxPath}`);
 
   const wb = XLSX.readFile(xlsxPath);
+  console.log("Available sheet names:", wb.SheetNames);
+  
   const wsName = typeof map.sheetName === "number" ? wb.SheetNames[map.sheetName] : map.sheetName;
+  console.log("Looking for sheet:", wsName);
+  
   const ws = wb.Sheets[wsName];
   if (!ws) throw new Error(`Sheet not found: ${wsName}`);
 
-  const rows: any[] = XLSX.utils.sheet_to_json(ws, { range: map.headerStartsAt, defval: null });
-  if (!rows.length) throw new Error("No rows parsed from Excel. Check headerStartsAt in mapping.json.");
+  console.log("Found worksheet, trying to read from cell", map.headerStartsAt);
+  // Read with headers from row 4
+  const rows: any[] = XLSX.utils.sheet_to_json(ws, { 
+    range: "A4:F1000", // Read from headers to end
+    header: "A",  // Use A,B,C... as temp headers
+    defval: null 
+  });
+
+  // Skip empty rows and rows before actual data
+  const dataRows = rows.slice(4).filter(r => r.A || r.B || r.C);
+  console.log("Found data rows:", dataRows.length);
+
+  if (!dataRows.length) {
+    console.log("Debug - First few cells content:");
+    // Log some cell contents to debug
+    for (let col of ['A','B','C','D','E','F']) {
+      for (let row of [1,2,3,4,5,6,7,8]) {
+        const cell = col + row;
+        console.log(`Cell ${cell}:`, ws[cell] ? ws[cell].v : 'empty');
+      }
+    }
+    throw new Error("No rows parsed from Excel. Check headerStartsAt in mapping.json.");
+  }
 
   // Validate headers exist
   const headers = Object.keys(rows[0]);
