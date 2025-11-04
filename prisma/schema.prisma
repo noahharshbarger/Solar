@@ -1,3 +1,9 @@
+enum OriginCategory {
+  DOMESTIC
+  INTERNATIONAL
+  UNKNOWN
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,13 +14,14 @@ datasource db {
 }
 
 model Part {
-  id            Int     @id @default(autoincrement())
-  sku           String  @unique
-  name          String
-  unitPrice     Float?
-  weightKg      Float?
-  originCountry String   @default("UNKNOWN")
-  isDomestic    Boolean  @default(false)
+  id             Int     @id @default(autoincrement())
+  sku            String  @unique
+  name           String
+  unitPrice      Float?
+  weightKg       Float?
+  originCountry  String  @default("US") // ISO 3166-1 alpha-2 (US, CA, MX, ...)
+  originCategory OriginCategory @default(UNKNOWN)
+  isDomestic     Boolean @default(false) // keep for now, we’ll deprecate later
 }
 
 model ComponentMap {
