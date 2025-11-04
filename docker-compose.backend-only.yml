@@ -1,0 +1,42 @@
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: solar-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: solar_db
+      MYSQL_USER: solar_user
+      MYSQL_PASSWORD: solar_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Backend API only
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: solar-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "mysql://solar_user:solar_password@db:3306/solar_db"
+      NODE_ENV: production
+      AURORA_TENANT_ID: "386d2b59-305c-4ab9-93a4-5ffb88f8f44b"
+      AURORA_API_TOKEN: "sk_prod_096d85b3745782b3468ae54b"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/data:/app/data:ro
+
+volumes:
+  mysql_data:
