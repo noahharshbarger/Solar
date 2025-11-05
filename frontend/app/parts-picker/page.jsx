@@ -261,7 +261,7 @@ export default function PartsPicker() {
   useEffect(() => {
     const timeoutsku = setTimeout(() => {
       performLiveSearch(searchTerm)
-    }, 300) // 300ms debounce
+    }, 1000) // 1000ms debounce
 
     return () => clearTimeout(timeoutsku)
   }, [searchTerm])

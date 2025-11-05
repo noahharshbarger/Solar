@@ -122,7 +122,29 @@ app.get("/aurora/modules", async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 50));
     const cursor = req.query.cursor || undefined;
     const page = await aurora.listModules({ limit, cursor });
-    res.json({ modules: page.items, limit: page.limit, next_cursor: page.next_cursor, has_more: page.has_more });
+    
+    // For each module, try to get its pricing from Aurora
+    const modulesWithPricing = await Promise.all(page.items.map(async (module) => {
+      try {
+        // Create a sample design to get pricing (you might want to adjust this based on your needs)
+        const designId = module.id; // or however Aurora identifies modules for pricing
+        const pricing = await aurora.getDesignPricing(designId);
+        return {
+          ...module,
+          pricing: pricing.system_price || pricing.price_per_watt || null
+        };
+      } catch (err) {
+        console.warn(`Could not get pricing for module ${module.id}: ${err.message}`);
+        return module;
+      }
+    }));
+
+    res.json({ 
+      modules: modulesWithPricing, 
+      limit: page.limit, 
+      next_cursor: page.next_cursor, 
+      has_more: page.has_more 
+    });
   } catch (e) {
     res.status(apiStatus(e)).json({ type: "about:blank", title: "aurora_modules_failed", status: apiStatus(e), detail: safeDetail(e) });
   }
@@ -134,7 +156,28 @@ app.get("/aurora/inverters", async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 50));
     const cursor = req.query.cursor || undefined;
     const page = await aurora.listInverters({ limit, cursor });
-    res.json({ inverters: page.items, limit: page.limit, next_cursor: page.next_cursor, has_more: page.has_more });
+    
+    // For each inverter, try to get its pricing from Aurora
+    const invertersWithPricing = await Promise.all(page.items.map(async (inverter) => {
+      try {
+        const designId = inverter.id; // or however Aurora identifies inverters for pricing
+        const pricing = await aurora.getDesignPricing(designId);
+        return {
+          ...inverter,
+          pricing: pricing.system_price || pricing.price_per_watt || null
+        };
+      } catch (err) {
+        console.warn(`Could not get pricing for inverter ${inverter.id}: ${err.message}`);
+        return inverter;
+      }
+    }));
+
+    res.json({ 
+      inverters: invertersWithPricing, 
+      limit: page.limit, 
+      next_cursor: page.next_cursor, 
+      has_more: page.has_more 
+    });
   } catch (e) {
     res.status(apiStatus(e)).json({ type: "about:blank", title: "aurora_inverters_failed", status: apiStatus(e), detail: safeDetail(e) });
   }
@@ -146,7 +189,28 @@ app.get("/aurora/dc-optimizers", async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 50));
     const cursor = req.query.cursor || undefined;
     const page = await aurora.listDcOptimizers({ limit, cursor });
-    res.json({ dc_optimizers: page.items, limit: page.limit, next_cursor: page.next_cursor, has_more: page.has_more });
+    
+    // For each optimizer, try to get its pricing from Aurora
+    const optimizersWithPricing = await Promise.all(page.items.map(async (optimizer) => {
+      try {
+        const designId = optimizer.id; // or however Aurora identifies optimizers for pricing
+        const pricing = await aurora.getDesignPricing(designId);
+        return {
+          ...optimizer,
+          pricing: pricing.system_price || pricing.price_per_watt || null
+        };
+      } catch (err) {
+        console.warn(`Could not get pricing for optimizer ${optimizer.id}: ${err.message}`);
+        return optimizer;
+      }
+    }));
+
+    res.json({ 
+      dc_optimizers: optimizersWithPricing, 
+      limit: page.limit, 
+      next_cursor: page.next_cursor, 
+      has_more: page.has_more 
+    });
   } catch (e) {
     res.status(apiStatus(e)).json({ type: "about:blank", title: "aurora_dc_optimizers_failed", status: apiStatus(e), detail: safeDetail(e) });
   }
