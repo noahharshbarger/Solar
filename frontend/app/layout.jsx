@@ -35,8 +35,8 @@ export default function RootLayout({ children }) {
                 <Link href="/" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
                   HOME
                 </Link>
-                <Link href="/parts-picker" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
-                  PARTS PICKER
+                <Link href="/search-parts" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
+                  SEARCH PARTS
                 </Link>
                 <Link href="/compare" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
                   FINANCING COMPARE
@@ -46,6 +46,12 @@ export default function RootLayout({ children }) {
                 </Link> */}
                 <Link href="/projects" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
                   PROJECTS
+                </Link>
+                <Link href="/project-archives" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
+                  PROJECT ARCHIVES
+                </Link>
+                <Link href="/feoc-calculator" className="text-gray-600 hover:text-[#053e7f] text-sm font-medium">
+                  FEOC CALCULATOR
                 </Link>
               </nav>
             </div>

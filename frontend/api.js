@@ -1,4 +1,3 @@
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export function fetchProjects({ page = 1, perPage = 10 } = {}) {
@@ -27,4 +26,18 @@ export async function fetchParts ({ page = 1, parts = [] } = {}) {
     } else {
         throw new Error ("Failed to fetch parts")
     }
-} 
+}
+
+export async function fetchFEOCCalculatorData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/feoc/data`);
+        if (response.ok) {
+            return await response.json();
+        } else {
+            throw new Error("Failed to fetch FEOC data");
+        }
+    } catch (error) {
+        console.error("FEOC data fetch error:", error);
+        throw error;
+    }
+}
