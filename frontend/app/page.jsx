@@ -17,7 +17,7 @@ export default function Home() {
       setCurrentImageIndex((prevIndex) => 
         (prevIndex + 1) % backgroundImages.length
       );
-    }, 4000); // Change image every 4 seconds
+    }, 3000); // Change image every 3 seconds
 
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
@@ -55,7 +55,7 @@ export default function Home() {
           Welcome to the Sales Portal! Streamline part selection and ordering for your sales team with a professional, easy-to-use interface.
         </p>
         <a
-          href="/search-parts"
+          href="/feoc-calculator"
           className="inline-block bg-[#053e7f] text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-[#08284f] transition"
         >
           Get Started
