@@ -1,42 +1,25 @@
 {
-  "name": "solar",
+  "name": "solar-monorepo",
   "version": "1.0.0",
-  "description": "**Goal:** Provide a search API that returns parts with Domestic vs Non-Domestic labels so FE can build UI now.",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "seed:xlsx": "ts-node prisma/seed-from-xlsx.ts",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/noahharshbarger/Solar.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/noahharshbarger/Solar/issues"
-  },
-  "homepage": "https://github.com/noahharshbarger/Solar#readme",
-  "dependencies": {
-    "@prisma/client": "^6.16.2",
-    "axios": "^1.12.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "node-fetch": "^3.3.2",
-    "xlsx": "^0.18.5"
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:dev": "docker-compose up --build"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
-    "nodemon": "^3.1.10",
-    "prisma": "^6.16.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "next": "^16.0.1",
+    "tailwindcss": "^3.4.3"
   }
 }

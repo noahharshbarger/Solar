@@ -1,0 +1,12 @@
+{
+  "sheetName": "Sheet1",
+  "headerStartsAt": "A4",
+  "columns": {
+    "sku": "C",
+    "brand": "B",
+    "partType": "A",
+    "price": "E",
+    "domestic": "F"
+  },
+  "priceCurrency": "USD"
+}
